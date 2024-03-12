@@ -22,11 +22,16 @@ MEAN = [0.485, 0.456, 0.406]
 STD = [0.229, 0.224, 0.225]
 
 # 데이터 경로
-data_dir = '/Users/bamgee/Downloads/071.시설 작물 질병 진단/01.데이터'
-train_images_dir = os.path.join(data_dir, '1.Training/원천데이터/07.애호박')
-train_labels_dir = os.path.join(data_dir, '1.Training/라벨링데이터/07.애호박')
-val_images_dir = os.path.join(data_dir, '2.Validation/원천데이터/07.애호박')
-val_labels_dir = os.path.join(data_dir, '2.Validation/라벨링데이터/07.애호박')
+#data_dir = '/Users/bamgee/Downloads/071.시설 작물 질병 진단/01.데이터'
+data_dir = '/Volumes/Samsung_T5/data/071.시설 작물 질병 진단/01.데이터'
+# train_images_dir = os.path.join(data_dir, '1.Training/원천데이터/07.애호박')
+# train_labels_dir = os.path.join(data_dir, '1.Training/라벨링데이터/07.애호박')
+# val_images_dir = os.path.join(data_dir, '2.Validation/원천데이터/07.애호박')
+# val_labels_dir = os.path.join(data_dir, '2.Validation/라벨링데이터/07.애호박')
+train_images_dir = os.path.join(data_dir, '1.Training/원천데이터/10.참외')
+train_labels_dir = os.path.join(data_dir, '1.Training/라벨링데이터/10.참외')
+val_images_dir = os.path.join(data_dir, '2.Validation/원천데이터/10.참외')
+val_labels_dir = os.path.join(data_dir, '2.Validation/라벨링데이터/10.참외')
 
 # JSON 라벨 파일 로드 함수
 def load_json_labels(labels_dir):
@@ -47,6 +52,7 @@ class CustomDataset(Dataset):
         self.labels_dir = labels_dir
         self.transform = transform
         self.img_labels = self.create_img_label_mapping()
+        # self.printed_labels = set()
 
     def create_img_label_mapping(self):
         mapping = {}
@@ -85,12 +91,23 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         img_path, label = list(self.img_labels.items())[idx]
         image = Image.open(img_path)
-        label = label['disease']  # 'disease' 값을 사용
+        #label = label['disease']  # 'disease' 값을 사용
+
+        # if label not in self.printed_labels:
+        #     print(f"라벨: {label}")
+        #     self.printed_labels.add(label)
+
+        if label['disease'] == 16:  # 참외노균병
+            new_label = 1
+        elif label['disease'] == 17:    #참외흰가루병
+            new_label = 2
+        else:
+            new_label = 0   # 정상
 
         if self.transform:
             image = self.transform(image)
 
-        return image, label
+        return image, new_label
 
 # 데이터 변환 설정 (전이 학습을 위해)
 data_transforms = {
@@ -201,7 +218,7 @@ for param in resnet.parameters():
 
 # 모델의 `fc` 레이어를 교체
 num_ftrs = resnet.fc.in_features
-resnet.fc = nn.Linear(num_ftrs, 33)
+resnet.fc = nn.Linear(num_ftrs, 3)
 resnet = resnet.to(DEVICE)
 
 optimizer_ft = optim.Adam(resnet.fc.parameters(), lr=0.001)
@@ -212,4 +229,4 @@ EPOCH = 30
 model_resnet50 = train_resnet(resnet, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=EPOCH)
 
 # 모델 저장
-torch.save(model_resnet50.state_dict(), 'resnet50.pth')
+torch.save(model_resnet50.state_dict(), 'melon_resnet50.pth')

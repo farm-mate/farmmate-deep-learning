@@ -22,6 +22,8 @@ model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 model = model.to(DEVICE)
 model.eval()  # 평가 모드로 설정
 
+
+
 # 이미지 전처리 함수
 def transform_image(image_bytes):
     my_transforms = transforms.Compose([
@@ -38,6 +40,11 @@ def transform_image(image_bytes):
 def predict():
     file = request.files.get('image')
     plant_type = request.form.get('plantType')  # 이 부분은 실제 모델에서 사용되지 않을 수 있습니다.
+
+    if (plant_type):
+        MODEL_PATH = f'{plant_type}_resnet50.pth'
+    else :
+        MODEL_PATH = 'resnet50.pth'
 
     if not file:
         return jsonify({'error': 'No image provided'}), 400
