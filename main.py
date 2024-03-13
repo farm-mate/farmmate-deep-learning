@@ -31,7 +31,6 @@ def predict():
     # 식물 유형에 따라 모델 경로와 클래스 수 설정
     if plant_type:
         model_path = f'{plant_type}_resnet50.pth'
-        # TODO: 실제 모델에 맞는 클래스 수를 설정
         num_classes = {
             '쥬키니호박' : 2,
             '토마토': 3,
