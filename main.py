@@ -7,7 +7,7 @@ import io
 # 설정
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 DEFAULT_MODEL_PATH = 'resnet50.pth'  # 기본 모델 파일 경로
-NUM_CLASSES = 33  # 실제 클래스 수에 맞게 변경하세요
+NUM_CLASSES = 3  # 실제 클래스 수에 맞게 변경하세요
 
 app = Flask(__name__)  # Flask 앱 설정
 
