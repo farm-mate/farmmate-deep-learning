@@ -3,6 +3,8 @@ import torch
 from torchvision import models, transforms
 from PIL import Image
 import io
+import os
+
 
 # 설정
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -66,6 +68,10 @@ def predict():
         outputs = model(tensor)
         _, predicted = torch.max(outputs, 1)
         predicted_class = predicted.item()
+        # 소프트맥스 함수로 확률값 계산
+        probabilities = torch.softmax(outputs, dim=1)[0]
+        confidence = probabilities[predicted_class].item()
+        print("Confidence:", confidence)
 
     return jsonify({'plantType': plant_type, 'predictedClass': predicted_class})
 

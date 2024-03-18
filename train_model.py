@@ -22,12 +22,12 @@ MEAN = [0.485, 0.456, 0.406]
 STD = [0.229, 0.224, 0.225]
 
 # 데이터 경로
-#data_dir = '/Users/bamgee/Downloads/071.시설 작물 질병 진단/01.데이터'
+data_dir = '/Users/bamgee/Downloads/071.시설 작물 질병 진단/01.데이터'
 # data_dir = '/Volumes/Samsung_T5/data/071.시설 작물 질병 진단/01.데이터'
-train_images_dir = os.path.join(data_dir, '1.Training/원천데이터/12.포도')
-train_labels_dir = os.path.join(data_dir, '1.Training/라벨링데이터/12.포도')
-val_images_dir = os.path.join(data_dir, '2.Validation/원천데이터/12.포도')
-val_labels_dir = os.path.join(data_dir, '2.Validation/라벨링데이터/12.포도')
+train_images_dir = os.path.join(data_dir, '1.Training/원천데이터/08.오이')
+train_labels_dir = os.path.join(data_dir, '1.Training/라벨링데이터/08.오이')
+val_images_dir = os.path.join(data_dir, '2.Validation/원천데이터/08.오이')
+val_labels_dir = os.path.join(data_dir, '2.Validation/라벨링데이터/08.오이')
 
 # JSON 라벨 파일 로드 함수
 def load_json_labels(labels_dir):
@@ -98,7 +98,7 @@ class CustomDataset(Dataset):
         #     self.printed_labels.add(label)
 
         # TODO : 작물에 맞게 수정
-        if label['disease'] == 20:  # 포도노균병
+        if label['disease'] == 15:  # 오이모자이크바이러스
             new_label = 1
         # elif label['disease'] == 17:
         #     new_label = 2
@@ -248,13 +248,13 @@ print(f"Using device: {DEVICE}")
 # class_weights = torch.tensor([1.0, 10.0], dtype=torch.float).to(DEVICE)
 
 ## 오이
-# class_weights = torch.tensor([1.0, 10.0], dtype=torch.float).to(DEVICE)
+class_weights = torch.tensor([1.0, 10.0], dtype=torch.float).to(DEVICE)
 
 ## 애호박
 # class_weights = torch.tensor([1.0, 10.0, 10.0], dtype=torch.float).to(DEVICE)
 
 ## 포도
-class_weights = torch.tensor([1.0, 10.0], dtype=torch.float).to(DEVICE)
+# class_weights = torch.tensor([1.0, 10.0], dtype=torch.float).to(DEVICE)
 
 criterion = nn.CrossEntropyLoss(weight=class_weights)
 # criterion = nn.CrossEntropyLoss()
@@ -264,6 +264,7 @@ for param in resnet.parameters():
     param.requires_grad = False
 
 # 모델의 `fc` 레이어를 교체
+# TODO : 클래스 수에 따라 out_features 수정 (2 or 3)
 num_ftrs = resnet.fc.in_features
 resnet.fc = nn.Linear(num_ftrs, 2)
 resnet = resnet.to(DEVICE)
@@ -277,4 +278,4 @@ model_resnet50 = train_resnet(resnet, criterion, optimizer_ft, exp_lr_scheduler,
 
 # TODO : 작물에 따라 이름 수정
 # 모델 저장
-torch.save(model_resnet50.state_dict(), '포도_resnet50.pth')
+torch.save(model_resnet50.state_dict(), '오이_resnet50.pth')
